@@ -36,7 +36,9 @@ use App\Http\Controllers\Peminjam\LihatKendaraanController;
 use App\Http\Controllers\Peminjam\AjukanPinjamanBarangController;
 use App\Http\Controllers\Peminjam\AjukanPinjamanRuanganController;
 use App\Http\Controllers\Peminjam\AjukanPinjamanKendaraanController;
-
+use App\Http\Controllers\Peminjam\DataPengembalianBarangController as PeminjamDataPengembalianBarangController;
+use App\Http\Controllers\Peminjam\DataPengembalianKendaraanController as PeminjamDataPengembalianKendaraanController;
+use App\Http\Controllers\Peminjam\DataPengembalianRuanganController as PeminjamDataPengembalianRuanganController;
 // Pimpinan
 use App\Http\Controllers\Pimpinan\DashboardPimpinanController;
 use App\Http\Controllers\Pimpinan\ProfilePimpinanController;
@@ -149,6 +151,17 @@ Route::middleware('auth')->group(function () {
         Route::get('peminjaman-kendaraan/create/{kendaraan_id}', [AjukanPinjamanKendaraanController::class, 'create'])->name('peminjaman-kendaraan.create');
         Route::post('peminjaman-kendaraan/store', [AjukanPinjamanKendaraanController::class, 'store'])->name('peminjaman-kendaraan.store');
 
+        Route::get('data-pembalian-barang', [PeminjamDataPengembalianBarangController::class, 'index'])->name('data-pengembalian-barang.index');
+        Route::get('data-pengembalian-barang/{id}', [PeminjamDataPengembalianBarangController::class, 'show'])
+            ->name('data-pengembalian-barang.show');
+
+        Route::get('data-pembalian-kendaraan', [PeminjamDataPengembalianKendaraanController::class, 'index'])->name('data-pengembalian-kendaraan.index');
+        Route::get('data-pengembalian-kendaraan/{id}', [PeminjamDataPengembalianKendaraanController::class, 'show'])
+            ->name('data-pengembalian-kendaraan.show');
+
+        Route::get('data-pembalian-ruangan', [PeminjamDataPengembalianRuanganController::class, 'index'])->name('data-pengembalian-ruangan.index');
+        Route::get('data-pengembalian-ruangan/{id}', [PeminjamDataPengembalianRuanganController::class, 'show'])
+            ->name('data-pengembalian-ruangan.show');
 
         // Profile peminjam
         Route::get('profile', [ProfilePeminjamController::class, 'index'])->name('peminjam.profile');

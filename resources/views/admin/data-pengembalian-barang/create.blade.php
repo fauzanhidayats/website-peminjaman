@@ -36,7 +36,8 @@
                                         @foreach ($peminjamans as $peminjaman)
                                             <option value="{{ $peminjaman->id }}"
                                                 {{ old('peminjaman_barang_id') == $peminjaman->id ? 'selected' : '' }}>
-                                                {{ $peminjaman->user->username }} - {{ $peminjaman->barang->nama_barang }}
+                                                {{ $peminjaman->user->username }} - {{ $peminjaman->barang->nama_barang }} -
+                                                {{ $peminjaman->jumlah }}
                                             </option>
                                         @endforeach
                                     </select>

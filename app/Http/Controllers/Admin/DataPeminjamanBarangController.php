@@ -30,12 +30,26 @@ class DataPeminjamanBarangController extends Controller
             'status' => 'required|in:diajukan,diterima,ditolak',
         ]);
 
+        // Ambil peminjaman yang dimaksud
         $peminjaman = PeminjamanBarang::with('barang')->findOrFail($id);
         $barang = $peminjaman->barang;
 
+        // Cek apakah ada peminjaman lain untuk barang yang sama,
+        // dengan status diajukan dan waktu lebih awal
+        $adaYangLebihDulu = PeminjamanBarang::where('barang_id', $peminjaman->barang_id)
+            ->where('status', 'diajukan')
+            ->where('created_at', '<', $peminjaman->created_at)
+            ->exists();
+
+        // Kalau ada peminjaman yang lebih awal dan belum diproses, tolak update status
+        if ($adaYangLebihDulu) {
+            return back()->with('error', 'Tidak bisa memproses peminjaman ini karena masih ada pemohon sebelumnya yang belum diproses.');
+        }
+
+        // Proses perubahan stok jika status berubah
         if ($peminjaman->status !== $request->status) {
 
-            // Jika berubah dari diajukan → diterima
+            // Jika dari diajukan → diterima
             if ($peminjaman->status === 'diajukan' && $request->status === 'diterima') {
                 if ($peminjaman->jumlah > $barang->stok) {
                     return back()->withInput()->with('error', 'Stok barang tidak mencukupi.');
@@ -44,19 +58,20 @@ class DataPeminjamanBarangController extends Controller
                 $barang->save();
             }
 
-            // Jika berubah dari diterima → diajukan
+            // Jika dari diterima → diajukan (batal proses)
             if ($peminjaman->status === 'diterima' && $request->status === 'diajukan') {
                 $barang->stok += $peminjaman->jumlah;
                 $barang->save();
             }
 
-            // Jika berubah ke ditolak, dan sebelumnya diterima, kembalikan stok
+            // Jika ditolak dan sebelumnya diterima, kembalikan stok
             if ($request->status === 'ditolak' && $peminjaman->status === 'diterima') {
                 $barang->stok += $peminjaman->jumlah;
                 $barang->save();
             }
         }
 
+        // Simpan perubahan status
         $peminjaman->update([
             'status' => $request->status,
         ]);
@@ -64,6 +79,7 @@ class DataPeminjamanBarangController extends Controller
         return redirect()->route('admin.peminjaman-barang.index')
             ->with('success', 'Status berhasil diperbarui.');
     }
+
 
     // Download surat peminjaman
     public function downloadSurat($id)

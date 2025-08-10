@@ -53,6 +53,13 @@
                                                     </span>
                                                 </td>
                                                 <td>
+                                                    @php
+                                                        $peminjamanPertama = $peminjamanRuangans
+                                                            ->where('ruangan_id', $item->ruangan_id)
+                                                            ->where('status', 'diajukan')
+                                                            ->sortBy('created_at')
+                                                            ->first();
+                                                    @endphp
                                                     @if ($item->surat_peminjaman)
                                                         <a href="{{ route('admin.peminjaman-ruangan.surat', $item->id) }}"
                                                             class="btn btn-sm btn-outline-info" target="_blank">
@@ -63,10 +70,19 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('admin.peminjaman-ruangan.edit', $item->id) }}"
-                                                        class="btn btn-sm btn-primary">
-                                                        <i class="fa fa-edit"></i> Edit
-                                                    </a>
+                                                    @if ($item->status === 'diajukan' && $peminjamanPertama->id === $item->id)
+                                                        <a href="{{ route('admin.peminjaman-ruangan.edit', $item->id) }}"
+                                                            class="btn btn-sm btn-primary">
+                                                            <i class="fa fa-edit"></i> Edit
+                                                        </a>
+                                                    @elseif ($item->status === 'diajukan')
+                                                        <button class="btn btn-sm btn-secondary" disabled
+                                                            title="Menunggu peminjaman ruangan sebelumnya diproses">
+                                                            <i class="fa fa-clock"></i> Menunggu
+                                                        </button>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @empty

@@ -62,12 +62,31 @@
                                                         <span class="text-muted">Belum tersedia</span>
                                                     @endif
                                                 </td>
+
+
                                                 <td>
-                                                    <a href="{{ route('admin.peminjaman-kendaraan.edit', $item->id) }}"
-                                                        class="btn btn-sm btn-primary">
-                                                        <i class="fa fa-edit"></i> Edit
-                                                    </a>
+                                                    @php
+                                                        $peminjamanPertama = $peminjamanKendaraans
+                                                            ->where('kendaraan_id', $item->kendaraan_id)
+                                                            ->where('status', 'diajukan')
+                                                            ->sortBy('created_at')
+                                                            ->first();
+                                                    @endphp
+                                                    @if ($item->status === 'diajukan' && $peminjamanPertama->id === $item->id)
+                                                        <a href="{{ route('admin.peminjaman-kendaraan.edit', $item->id) }}"
+                                                            class="btn btn-sm btn-primary">
+                                                            <i class="fa fa-edit"></i> Edit
+                                                        </a>
+                                                    @elseif ($item->status === 'diajukan')
+                                                        <button class="btn btn-sm btn-secondary" disabled
+                                                            title="Menunggu peminjaman kendaraan sebelumnya diproses">
+                                                            <i class="fa fa-clock"></i> Menunggu
+                                                        </button>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
                                                 </td>
+
                                             </tr>
                                         @empty
                                             <tr>

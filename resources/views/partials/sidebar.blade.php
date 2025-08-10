@@ -78,6 +78,16 @@
                         <li><a class="nav-link" href="{{ route('peminjaman-kendaraan.index') }}">Kendaraan</a></li>
                     </ul>
                 </li>
+                <li class="dropdown">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i
+                            class="fas fa-file-signature"></i> <span>Pengembalian Saya</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="nav-link" href="{{ route('data-pengembalian-barang.index') }}">Barang</a></li>
+                        <li><a class="nav-link" href="{{ route('data-pengembalian-ruangan.index') }}">Ruangan</a></li>
+                        <li><a class="nav-link" href="{{ route('data-pengembalian-kendaraan.index') }}">Kendaraan</a>
+                        </li>
+                    </ul>
+                </li>
                 <li>
                     <a class="nav-link" href="{{ route('lihat-barang') }}"><i class="fas fa-toolbox"></i> <span>Lihat
                             Barang</span></a>

@@ -65,11 +65,29 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('admin.peminjaman-barang.edit', $item->id) }}"
-                                                        class="btn btn-sm btn-primary">
-                                                        <i class="fa fa-edit"></i> Edit
-                                                    </a>
+                                                    @php
+                                                        $adaYangLebihDulu = $peminjamanBarangs
+                                                            ->where('barang_id', $item->barang_id)
+                                                            ->where('status', 'diajukan')
+                                                            ->where('created_at', '<', $item->created_at)
+                                                            ->isNotEmpty();
+                                                    @endphp
+
+                                                    @if ($item->status === 'diajukan' && !$adaYangLebihDulu)
+                                                        <a href="{{ route('admin.peminjaman-barang.edit', $item->id) }}"
+                                                            class="btn btn-sm btn-primary">
+                                                            <i class="fa fa-edit"></i> Edit
+                                                        </a>
+                                                    @elseif ($item->status === 'diajukan')
+                                                        <button class="btn btn-sm btn-secondary" disabled
+                                                            title="Menunggu peminjaman sebelumnya diproses">
+                                                            <i class="fa fa-clock"></i> Menunggu
+                                                        </button>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
                                                 </td>
+
                                             </tr>
                                         @empty
                                             <tr>

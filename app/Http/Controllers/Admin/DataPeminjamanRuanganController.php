@@ -31,8 +31,22 @@ class DataPeminjamanRuanganController extends Controller
     public function edit($id)
     {
         $peminjaman = PeminjamanRuangan::with(['user', 'ruangan'])->findOrFail($id);
+
+        // Cek peminjaman paling awal yang statusnya diajukan untuk ruangan ini
+        $peminjamanPertama = PeminjamanRuangan::where('ruangan_id', $peminjaman->ruangan_id)
+            ->where('status', 'diajukan')
+            ->orderBy('created_at')
+            ->first();
+
+        // Jika yang diedit bukan peminjaman pertama yang diajukan, redirect dengan error
+        if ($peminjaman->status === 'diajukan' && $peminjamanPertama->id !== $peminjaman->id) {
+            return redirect()->route('admin.peminjaman-ruangan.index')
+                ->with('error', 'Anda harus memproses peminjaman ruangan sebelumnya terlebih dahulu.');
+        }
+
         return view('admin.data-peminjaman-ruangan.edit', compact('peminjaman'));
     }
+
 
     // Simpan perubahan status peminjaman ruangan
     public function update(Request $request, $id)
@@ -43,7 +57,17 @@ class DataPeminjamanRuanganController extends Controller
 
         $peminjaman = PeminjamanRuangan::findOrFail($id);
 
-        // Update status peminjaman ruangan langsung tanpa menyentuh ruangan
+        // Cek peminjaman paling awal yang masih diajukan
+        $peminjamanPertama = PeminjamanRuangan::where('ruangan_id', $peminjaman->ruangan_id)
+            ->where('status', 'diajukan')
+            ->orderBy('created_at')
+            ->first();
+
+        if ($peminjaman->status === 'diajukan' && $peminjamanPertama->id !== $peminjaman->id) {
+            return back()->with('error', 'Anda harus memproses peminjaman ruangan sebelumnya terlebih dahulu.');
+        }
+
+        // Update status jika lolos pengecekan
         $peminjaman->update([
             'status' => $request->status,
         ]);
@@ -51,6 +75,7 @@ class DataPeminjamanRuanganController extends Controller
         return redirect()->route('admin.peminjaman-ruangan.index')
             ->with('success', 'Status peminjaman ruangan berhasil diperbarui.');
     }
+
 
     // Download surat peminjaman ruangan
     public function downloadSurat($id)

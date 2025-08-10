@@ -32,6 +32,18 @@ class DataPeminjamanKendaraanController extends Controller
     public function edit($id)
     {
         $peminjaman = PeminjamanKendaraan::with(['user', 'kendaraan'])->findOrFail($id);
+
+        // Cek peminjaman paling awal yang masih diajukan untuk kendaraan ini
+        $peminjamanPertama = PeminjamanKendaraan::where('kendaraan_id', $peminjaman->kendaraan_id)
+            ->where('status', 'diajukan')
+            ->orderBy('created_at')
+            ->first();
+
+        if ($peminjaman->status === 'diajukan' && $peminjamanPertama->id !== $peminjaman->id) {
+            return redirect()->route('admin.peminjaman-kendaraan.index')
+                ->with('error', 'Anda harus memproses peminjaman kendaraan sebelumnya terlebih dahulu.');
+        }
+
         return view('admin.data-peminjaman-kendaraan.edit', compact('peminjaman'));
     }
 
@@ -42,7 +54,17 @@ class DataPeminjamanKendaraanController extends Controller
             'status' => 'required|in:diajukan,diterima,ditolak',
         ]);
 
-        $peminjaman = PeminjamanKendaraan::with('kendaraan')->findOrFail($id);
+        $peminjaman = PeminjamanKendaraan::findOrFail($id);
+
+        // Cek peminjaman paling awal yang masih diajukan
+        $peminjamanPertama = PeminjamanKendaraan::where('kendaraan_id', $peminjaman->kendaraan_id)
+            ->where('status', 'diajukan')
+            ->orderBy('created_at')
+            ->first();
+
+        if ($peminjaman->status === 'diajukan' && $peminjamanPertama->id !== $peminjaman->id) {
+            return back()->with('error', 'Anda harus memproses peminjaman kendaraan sebelumnya terlebih dahulu.');
+        }
 
         $peminjaman->update([
             'status' => $request->status,
